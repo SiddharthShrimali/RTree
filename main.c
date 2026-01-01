@@ -72,22 +72,11 @@ void quickSortY(Point points[], int first, int last) {
     }
 }
 
-int main() {
-    Point *points;
-    int pointCount, leafPages, slices, sliceSize;
-
-    pointCount=11;
-    points=(Point*)calloc(pointCount, sizeof(Point)); //input array for points
-
-    for(int i=0; i<pointCount; i++) {
-        points[i].x=i*1.2;
-        points[i].y=i*1.5;
-    }
+void sortSTR(Point points[], int pointCount) {
     quickSortX(points, 0, pointCount-1);  //sorting the points in x-axis
-
-    leafPages=(int)ceil((double)pointCount/MAX_ENTRIES); //making leaf level pages(no of leaves) (P)
-    slices=(int)ceil(sqrt(leafPages)); //making slices (S)
-    sliceSize=MAX_ENTRIES*slices; //each slice contains how many points (S*n=points per slice)
+    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES); //making leaf level pages(no of leaves) (P)
+    int slices=(int)ceil(sqrt(leafPages)); //making slices (S)
+    int sliceSize=MAX_ENTRIES*slices; //each slice contains how many points (S*n=points per slice)
 
     for(int i=0; i<slices; i++) {
         int start=i*sliceSize; //incrementing start to a multiple of sliceSize
@@ -96,12 +85,15 @@ int main() {
         if(end>=pointCount) end=pointCount-1;
         quickSortY(points, start, end); //sorting the points in y-axis
     }
+}
 
-    int leafCount=0;
-    node **leafNodeAddresses=calloc(leafPages, sizeof(node*)); //to reduce stack storage
+void tilePoints(Point points[], int pointCount, node ***leafNodeAddresses, int *leafCount) {
+    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES); //making leaf level pages(no of leaves) (P)
+    *leafCount=0;
+    *leafNodeAddresses=calloc(leafPages, sizeof(node*)); //to reduce stack storage
     for(int i=0; i<pointCount; i+=MAX_ENTRIES) {
         node *leaf=(node*)malloc(1*sizeof(node));
-        leafNodeAddresses[leafCount++]=leaf;
+        (*leafNodeAddresses)[(*leafCount)++]=leaf;
         leaf->isLeaf=1;
         leaf->size=0;
         leaf->xmax=leaf->ymax=__FLT_MIN__;
@@ -116,8 +108,26 @@ int main() {
             if(p->y>leaf->ymax) leaf->ymax=p->y;
         }
     }
-    free(points);
+}
+
+int main() {
+    Point *points;
+    int pointCount=11;
+    points=(Point*)calloc(pointCount, sizeof(Point)); //input array for points
+
+    for(int i=0; i<pointCount; i++) {
+        points[i].x=i*1.2;
+        points[i].y=i*1.5;
+    }
+
+    sortSTR(points, pointCount);
+
+    int leafCount=0;
+    node **leafNodeAddresses;
+    tilePoints(points, pointCount, &leafNodeAddresses, &leafCount);
+
     for(int i=0; i<leafCount; i++) free(leafNodeAddresses[i]);
     free(leafNodeAddresses);
+    free(points);
     return 0;
 }
