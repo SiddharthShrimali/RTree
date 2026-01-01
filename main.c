@@ -13,9 +13,7 @@ typedef struct Data {
 
 typedef struct RTreeNode {
     int isLeaf;                // 1=leaf, 0=internal
-    int entryCount;            // number of entries
-    float x1, x2, x3, x4;      // bounding box(4rectangle points)
-    float y1, y2, y3, y4;
+    int size;            // number of entries
     float xmin, xmax;
     float ymin, ymax;
     struct RTreeNode *children[MAX_ENTRIES];  // child node pointers
@@ -78,7 +76,7 @@ int main() {
     Point *points;
     int pointCount, leafPages, slices, sliceSize;
 
-    pointCount=12;
+    pointCount=11;
     points=(Point*)calloc(pointCount, sizeof(Point)); //input array for points
 
     for(int i=0; i<pointCount; i++) {
@@ -100,18 +98,18 @@ int main() {
     }
 
     int leafCount=0;
-    node **leafNodes=malloc(sizeof(node*)*leafPages); //to reduce stack storage
+    node **leafNodeAddresses=calloc(leafPages, sizeof(node*)); //to reduce stack storage
     for(int i=0; i<pointCount; i+=MAX_ENTRIES) {
-        node *leaf=(node*)calloc(1, sizeof(node));
-        leafNodes[leafCount++]=leaf;
+        node *leaf=(node*)malloc(1*sizeof(node));
+        leafNodeAddresses[leafCount++]=leaf;
         leaf->isLeaf=1;
-        leaf->entryCount=0;
+        leaf->size=0;
         leaf->xmax=leaf->ymax=__FLT_MIN__;
         leaf->xmin=leaf->ymin=__FLT_MAX__;
         for(int j=0; j<MAX_ENTRIES && (i+j)<pointCount; j++) {
             Point *p=&points[i+j];
             leaf->points[j]=p;
-            leaf->entryCount++;
+            leaf->size++;
             if(p->x<leaf->xmin) leaf->xmin=p->x;
             if(p->x>leaf->xmax) leaf->xmax=p->x;
             if(p->y<leaf->ymin) leaf->ymin=p->y;
@@ -119,7 +117,7 @@ int main() {
         }
     }
     free(points);
-    for(int i=0; i<leafCount; i++) free(leafNodes[i]);
-    free(leafNodes);
+    for(int i=0; i<leafCount; i++) free(leafNodeAddresses[i]);
+    free(leafNodeAddresses);
     return 0;
 }
