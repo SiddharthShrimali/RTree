@@ -13,7 +13,7 @@ typedef struct Data {
 
 typedef struct RTreeNode {
     int isLeaf;                // 1=leaf, 0=internal
-    int size;            // number of entries
+    int size;                  // number of entries
     float xmin, xmax;
     float ymin, ymax;
     struct RTreeNode *children[MAX_ENTRIES];  // child node pointers
@@ -73,24 +73,24 @@ void quickSortY(Point points[], int first, int last) {
 }
 
 void sortSTR(Point points[], int pointCount) {
-    quickSortX(points, 0, pointCount-1);  //sorting the points in x-axis
-    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES); //making leaf level pages(no of leaves) (P)
-    int slices=(int)ceil(sqrt(leafPages)); //making slices (S)
-    int sliceSize=MAX_ENTRIES*slices; //each slice contains how many points (S*n=points per slice)
+    quickSortX(points, 0, pointCount-1);                         //sorting the points in x-axis
+    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES);     //making leaf level pages(no of leaves) (P)
+    int slices=(int)ceil(sqrt(leafPages));                       //making slices (S)
+    int sliceSize=MAX_ENTRIES*slices;                            //each slice contains how many points (S*n=points per slice)
 
     for(int i=0; i<slices; i++) {
-        int start=i*sliceSize; //incrementing start to a multiple of sliceSize
-        int end=start+sliceSize-1; //incrementing end to sliceSize-1 for 0 based indexing
-        if(start>=pointCount) break; //to handle overflow
+        int start=i*sliceSize;                                   //incrementing start to a multiple of sliceSize
+        int end=start+sliceSize-1;                               //incrementing end to sliceSize-1 for 0 based indexing
+        if(start>=pointCount) break;                             //to handle overflow
         if(end>=pointCount) end=pointCount-1;
-        quickSortY(points, start, end); //sorting the points in y-axis
+        quickSortY(points, start, end);                          //sorting the points in y-axis
     }
 }
 
 void tilePoints(Point points[], int pointCount, node ***leafNodeAddresses, int *leafCount) {
-    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES); //making leaf level pages(no of leaves) (P)
+    int leafPages=(int)ceil((double)pointCount/MAX_ENTRIES);     //making leaf level pages(no of leaves) (P)
     *leafCount=0;
-    *leafNodeAddresses=calloc(leafPages, sizeof(node*)); //to reduce stack storage
+    *leafNodeAddresses=calloc(leafPages, sizeof(node*));         //to reduce stack storage
     for(int i=0; i<pointCount; i+=MAX_ENTRIES) {
         node *leaf=(node*)malloc(1*sizeof(node));
         (*leafNodeAddresses)[(*leafCount)++]=leaf;
@@ -113,7 +113,7 @@ void tilePoints(Point points[], int pointCount, node ***leafNodeAddresses, int *
 int main() {
     Point *points;
     int pointCount=11;
-    points=(Point*)calloc(pointCount, sizeof(Point)); //input array for points
+    points=(Point*)calloc(pointCount, sizeof(Point));            //input array for points
 
     for(int i=0; i<pointCount; i++) {
         points[i].x=i*1.2;
